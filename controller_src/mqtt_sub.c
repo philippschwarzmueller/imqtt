@@ -6,7 +6,7 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 19:22:07 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/04 15:39:04 by luntiet-         ###   ########.fr       */
+/*   Updated: 2023/05/04 16:30:51 by luntiet-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,21 @@
 #include <string.h>
 #include <unistd.h>
 #include <mosquitto.h>
+// #include </Users/luntiet/.brew/include/mosquitto.h>
 #include <fcntl.h>
 #include <time.h>
 
 int	fd;
+
+char	*get_logname(void)
+{
+	char	*logname;
+	time_t	t;
+
+	time(&t);
+	logname = ctime(&t);
+	return (logname);
+}
 
 void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
@@ -37,6 +48,7 @@ void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	(void) obj;
 
 	printf("New message with topic %s: %s\n", msg->topic, (char *) msg->payload);
+	write(fd, msg->payload, strlen(msg->payload));
 }
 
 int	main(void)
@@ -44,13 +56,11 @@ int	main(void)
 	int					rc;
 	int					id;
 	struct mosquitto	*mosq;
-	time_t				t;
 	char				*logname;
 
-	time(&t);
-	logname = strcat(ctime(&t), ".log");
-	fd = open(logname, O_CREAT, 0557);
-	close(fd);
+	logname = get_logname();
+	printf("%s", logname);
+	// fd = open(logname, O_CREAT, 0557);
 	mosquitto_lib_init();
 	id = 12;
 	mosq = mosquitto_new("subscrite-test", true, &id);
@@ -70,5 +80,6 @@ int	main(void)
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
+	close(fd);
 	return (0);
 }

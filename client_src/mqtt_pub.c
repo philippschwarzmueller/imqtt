@@ -6,13 +6,14 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 18:40:06 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/03 19:21:39 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/04 16:31:04 by luntiet-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <mosquitto.h>
+// #include </Users/luntiet/.brew/include/mosquitto.h>
 #include <unistd.h>
 
 int	main(void)
