@@ -1,0 +1,4 @@
+-Wall
+-Wextra
+-Werror
+-i/Users/luntiet/.brew/include/
