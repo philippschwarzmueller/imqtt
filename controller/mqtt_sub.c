@@ -6,14 +6,19 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 19:22:07 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/03 19:34:51 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/04 15:39:04 by luntiet-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <mosquitto.h>
+#include <fcntl.h>
+#include <time.h>
+
+int	fd;
 
 void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
@@ -30,6 +35,7 @@ void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 {
 	(void) mosq;
 	(void) obj;
+
 	printf("New message with topic %s: %s\n", msg->topic, (char *) msg->payload);
 }
 
@@ -38,7 +44,13 @@ int	main(void)
 	int					rc;
 	int					id;
 	struct mosquitto	*mosq;
+	time_t				t;
+	char				*logname;
 
+	time(&t);
+	logname = strcat(ctime(&t), ".log");
+	fd = open(logname, O_CREAT, 0557);
+	close(fd);
 	mosquitto_lib_init();
 	id = 12;
 	mosq = mosquitto_new("subscrite-test", true, &id);
