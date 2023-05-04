@@ -6,7 +6,7 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 18:40:06 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/04 22:05:01 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/05 00:18:23 by makurz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,15 @@
 
 char	*get_publish_time(void)
 {
-	char	*publish_time;
-	time_t	timestamp;
+	time_t		now;
+	struct tm	*local_time;
+	char		*timestamp;
 
-	time(&timestamp);
-	publish_time = ctime(&timestamp);
-	return (publish_time);
+	now = time(NULL);
+	local_time = localtime(&now);
+	timestamp = calloc(50, sizeof(char));
+	strftime(timestamp, 50, "%Y-%m-%dT%H-%M-%S", local_time);
+	return (timestamp);
 }
 
 int	main(int argc, char **argv)
@@ -70,6 +73,7 @@ int	main(int argc, char **argv)
 		line[strlen(line) - 1] = ' ';
 		pub_string = calloc(strlen(timestamp) + strlen(line) + 1,\
 				sizeof(char));
+		printf("##%s##\n", timestamp);
 		if (pub_string == NULL)
 		{
 			mosquitto_destroy(mosq);
@@ -86,6 +90,7 @@ int	main(int argc, char **argv)
 		line = get_next_line(fd);
 		sleep(5);
 	}
+	free(timestamp);
 	close(fd);
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
