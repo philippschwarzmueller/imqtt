@@ -21,6 +21,9 @@ controller: $(OBJ_CONTROLLER)
 mosquitto:
 	/usr/local/sbin/mosquitto --verbose
 
+mosqlin:
+	mosquitto -v
+
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p _obj
 	gcc -c $< $(INC) -o $@
