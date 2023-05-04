@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Your Report</title>
+  </head>
+  <body>
+    <h1>Report</h1>
+    <button id="generate_log">Refresh Log</button>
+    <input type="file" id="myFile" />
+    <hr />
+    <textarea style="width: 500px; height: 400px" id="output"></textarea>
+  </body>
+  <script>
+    var input = document.getElementById("myFile");
+    var output = document.getElementById("output");
+
+    input.addEventListener("change", function () {
+      if (this.files && this.files[0]) {
+        var myFile = this.files[0];
+        var reader = new FileReader();
+
+        reader.addEventListener("load", function (e) {
+          output.textContent = e.target.result;
+        });
+
+        reader.readAsBinaryString(myFile);
+      }
+    });
+  </script>
+</html>
