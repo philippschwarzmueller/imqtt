@@ -6,20 +6,38 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 18:40:06 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/03 19:21:39 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/04 16:09:26 by makurz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "get_next_line.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <mosquitto.h>
 #include <unistd.h>
+#include <fcntl.h>
 
-int	main(void)
+int	main(int argc, char **argv)
 {
+	char				*file_name;
+	char				*line;
 	int					rc;
+	int					fd;
 	struct mosquitto	*mosq;
 
+	if (argc != 2)
+	{
+		printf("Usage: ./mqtt_pub [file_name]\n");
+		return (-1);
+	}
+	file_name = argv[1];
+	fd = open(file_name, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Could not open file\n");
+		return (-1);
+	}
 	mosquitto_lib_init();
 	mosq = mosquitto_new("publisher-test", true, NULL);
 
@@ -28,17 +46,20 @@ int	main(void)
 	{
 		printf("Client could not connect to broker! Error code: %i\n", rc);
 		mosquitto_destroy(mosq);
+		mosquitto_lib_cleanup();
 		return (-1);
 	}
 	printf("We are now connected to the broker!\n");
-	int i = 0;
-	while (i < 10)
+	line = get_next_line(fd);
+	while (line != NULL)
 	{
-		mosquitto_publish(mosq, NULL, "test/t1", 6, "Hello", 0, false);
-		++i;
-		sleep(3);
+		mosquitto_publish(mosq, NULL, "sensor/temparature_1",\
+				strlen(line), line, 0, false);
+		free(line);
+		line = get_next_line(fd);
+		sleep(5);
 	}
-
+	close(fd);
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
