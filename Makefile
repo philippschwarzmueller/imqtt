@@ -1,14 +1,35 @@
+VPATH := client_src controller_src
+
+SRC_CLIENT := mqtt_pub.c get_next_line.c get_next_line_utils.c
+SRC_CONTROLLER := mqtt_sub.c
+
+OBJ_DIR := ./_obj
+
+OBJ_CLIENT := $(addprefix $(OBJ_DIR)/, $(SRC_CLIENT:%.c=%.o))
+OBJ_CONTROLLER := $(addprefix $(OBJ_DIR)/, $(SRC_CONTROLLER:%.c=%.o))
+
+INC := -lmosquitto
+
 all: client controller
 
-client:
-	gcc -l mosquitto ./client_src/mqtt_pub.c -o client
+client: $(OBJ_CLIENT)
+	gcc $(OBJ_CLIENT) -o $@ $(INC) 
 
-controller:
-	gcc -l mosquitto ./controller_src/mqtt_sub.c -o controller
+controller: $(OBJ_CONTROLLER)
+	gcc $(OBJ_CONTROLLER) -o $@ $(INC)
 
 mosquitto:
 	/usr/local/sbin/mosquitto --verbose
 
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p _obj
+	gcc -c $< $(INC) -o $@
+
 clean:
-	rm client
-	rm controller
+	rm -rf $(OBJ_DIR)
+
+fclean: clean
+	rm -f client
+	rm -f controller
+
+re: fclean all

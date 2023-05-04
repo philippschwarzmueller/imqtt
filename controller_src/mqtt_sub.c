@@ -6,7 +6,7 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 19:22:07 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/03 19:34:51 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/04 21:33:23 by makurz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 		printf("Error with result code: %i\n", rc);
 		exit(-1);
 	}
-	mosquitto_subscribe(mosq, NULL, "test/t1", 0);
+	mosquitto_subscribe(mosq, NULL, "sensor/temperature_1", 0);
 }
 
 void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
@@ -41,7 +41,7 @@ int	main(void)
 
 	mosquitto_lib_init();
 	id = 12;
-	mosq = mosquitto_new("subscrite-test", true, &id);
+	mosq = mosquitto_new("subscribe-test", true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 

@@ -6,7 +6,7 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 18:40:06 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/04 16:09:26 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/04 22:05:01 by makurz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,24 @@
 #include <mosquitto.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
+
+char	*get_publish_time(void)
+{
+	char	*publish_time;
+	time_t	timestamp;
+
+	time(&timestamp);
+	publish_time = ctime(&timestamp);
+	return (publish_time);
+}
 
 int	main(int argc, char **argv)
 {
 	char				*file_name;
+	char				*timestamp;
 	char				*line;
+	char				*pub_string;
 	int					rc;
 	int					fd;
 	struct mosquitto	*mosq;
@@ -49,13 +62,27 @@ int	main(int argc, char **argv)
 		mosquitto_lib_cleanup();
 		return (-1);
 	}
-	printf("We are now connected to the broker!\n");
+	printf("Client is now connected to the broker!\n");
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
-		mosquitto_publish(mosq, NULL, "sensor/temparature_1",\
-				strlen(line), line, 0, false);
+		timestamp = get_publish_time();
+		line[strlen(line) - 1] = ' ';
+		pub_string = calloc(strlen(timestamp) + strlen(line) + 1,\
+				sizeof(char));
+		if (pub_string == NULL)
+		{
+			mosquitto_destroy(mosq);
+			mosquitto_lib_cleanup();
+			printf("Malloc failed\n");
+			return (-1);
+		}
+		strcpy(pub_string, line);
+		strcat(pub_string, timestamp);
+		mosquitto_publish(mosq, NULL, "sensor/temperature_1",\
+				strlen(pub_string), pub_string, 0, false);
 		free(line);
+		free(pub_string);
 		line = get_next_line(fd);
 		sleep(5);
 	}
