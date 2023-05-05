@@ -21,6 +21,10 @@ controller: $(OBJ_CONTROLLER)
 mosquitto:
 	/usr/local/sbin/mosquitto --verbose
 
+report:
+	cd report_src && npm install
+	cd report_src && npm start
+
 mosqlin:
 	mosquitto -v
 
