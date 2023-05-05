@@ -30,7 +30,7 @@ mosqlin:
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p _obj
-	gcc -c $< $(INC) -o $@
+	gcc -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
@@ -40,5 +40,3 @@ fclean: clean
 	rm -f controller
 
 re: fclean all
-	rm client
-	rm controller
