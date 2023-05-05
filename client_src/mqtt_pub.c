@@ -16,7 +16,7 @@ char	*get_publish_time(void)
 	now = time(NULL);
 	local_time = localtime(&now);
 	timestamp = calloc(50, sizeof(char));
-	strftime(timestamp, 50, "%Y-%m-%dT%H-%M-%S", local_time);
+	strftime(timestamp, 50, "%Y-%m-%dT%H:%M:%S", local_time);
 	return (timestamp);
 }
 
