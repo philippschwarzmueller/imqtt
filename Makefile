@@ -1,4 +1,4 @@
-all: client controller
+all: client controller report
 
 client:
 	gcc -l mosquitto ./client_src/mqtt_pub.c ./client_src/get_next_line.c ./client_src/get_next_line_utils.c -o client
@@ -8,6 +8,9 @@ controller:
 
 mosquitto:
 	/usr/local/sbin/mosquitto --verbose
+
+report:
+	cd report_src && npm install
 
 clean:
 	rm client
