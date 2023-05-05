@@ -67,7 +67,7 @@ void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 		printf("Error with result code: %i\n", rc);
 		exit(EXIT_FAILURE);
 	}
-	mosquitto_subscribe(mosq, NULL, "sensor/temparature_1", 0);
+	mosquitto_subscribe(mosq, NULL, "sensor/temperature_1", 0);
 }
 
 void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
@@ -98,7 +98,7 @@ int	main(void)
 	fd = open(logname, O_CREAT | O_APPEND | O_RDWR, 0664);
 	mosquitto_lib_init();
 	id = 12;
-	mosq = mosquitto_new("subscrite-test", true, &id);
+	mosq = mosquitto_new("subscribe-test", true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 	rc = mosquitto_connect(mosq, "localhost", 1883, 10);

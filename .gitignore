@@ -2,4 +2,5 @@
 .DS_Store
 client
 controller
+_obj/
 *.log
