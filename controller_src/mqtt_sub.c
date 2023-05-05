@@ -3,10 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <mosquitto.h>
-// #include </Users/luntiet/.brew/include/mosquitto.h>
 #include <fcntl.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 
 int	fd;
 
@@ -23,7 +24,7 @@ void	append_string(char *dest, char *src, int *i)
 	}
 }
 
-char	*join_three(char *day, char *month, char *time)
+char	*join_three(char *day, char *month, char *time, char delimiter)
 {
 	char	*logname;
 	int		size;
@@ -34,9 +35,9 @@ char	*join_three(char *day, char *month, char *time)
 	logname = malloc(size);
 	append_string(logname, "log/", &i);
 	append_string(logname, day, &i);
-	logname[i++] = '_';
+	logname[i++] = delimiter;
 	append_string(logname, month, &i);
-	logname[i++] = '_';
+	logname[i++] = delimiter;
 	append_string(logname, time, &i);
 	logname[size] = '\0';
 	return (logname);
@@ -52,7 +53,7 @@ char	*get_logname(void)
 	time(&t);
 	logname = ctime(&t);
 	splited = split(logname, ' ');
-	logname = join_three(splited[2], splited[1], splited[3]);
+	logname = join_three(splited[2], splited[1], splited[3], '_');
 	logname = strcat(logname, ".log");
 	ft_free(splited);
 	return (logname);
@@ -64,9 +65,9 @@ void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 	if (rc != 0)
 	{
 		printf("Error with result code: %i\n", rc);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
-	mosquitto_subscribe(mosq, NULL, "test/t1", 0);
+	mosquitto_subscribe(mosq, NULL, "sensor/temparature_1", 0);
 }
 
 void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
@@ -74,31 +75,38 @@ void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	(void) mosq;
 	(void) obj;
 
-	printf("New message with topic %s: %s\n", msg->topic, (char *) msg->payload);
-	write(fd, msg->payload, strlen(msg->payload));
+	// printf("New message with topic %s: %s\n", msg->topic, pay);
+	write(fd, (char *)msg->payload, strlen((char *)msg->payload));
 }
 
 int	main(void)
 {
+	DIR					*dir;
 	int					rc;
 	int					id;
 	struct mosquitto	*mosq;
 	char				*logname;
 
-	mkdir("log", 0755);
+	dir = opendir("log");
+	if (dir)
+		closedir(dir);
+	else if (ENOENT == errno)
+		mkdir("log", 0755);
+	else
+		fprintf(stderr, "Failed to create log directory");
 	logname = get_logname();
-	fd = open(logname, O_CREAT | O_APPEND | O_TRUNC, 0664);
+	fd = open(logname, O_CREAT | O_APPEND | O_RDWR, 0664);
 	mosquitto_lib_init();
 	id = 12;
 	mosq = mosquitto_new("subscrite-test", true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
-
 	rc = mosquitto_connect(mosq, "localhost", 1883, 10);
 	if (rc != 0)
 	{
 		printf("Could not connect to Broker with return code %i\n", rc);
-		return (-1);
+		close(fd);
+		return (EXIT_FAILURE);
 	}
 	mosquitto_loop_start(mosq);
 	printf("Press enter to quit...\n");
@@ -108,7 +116,7 @@ int	main(void)
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
 	close(fd);
-	return (0);
+	return (EXIT_SUCCESS);
 }
 
 static size_t	ft_word_length(const char *s, size_t i, char c)

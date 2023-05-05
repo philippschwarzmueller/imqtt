@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mosquitto.h>
-// #include </Users/luntiet/.brew/include/mosquitto.h>
 #include <unistd.h>
 #include <fcntl.h>
 
