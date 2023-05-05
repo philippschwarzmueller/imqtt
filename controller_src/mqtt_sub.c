@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
 
 int	fd;
 
@@ -64,7 +62,7 @@ void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 	printf("ID: %i\n", * (int *) obj);
 	if (rc != 0)
 	{
-		printf("Error with result code: %i\n", rc);
+		fprintf(stderr, "Error with result code: %i\n", rc);
 		exit(EXIT_FAILURE);
 	}
 	mosquitto_subscribe(mosq, NULL, "sensor/temperature_1", 0);
@@ -82,19 +80,11 @@ void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 
 int	main(void)
 {
-	DIR					*dir;
 	int					rc;
 	int					id;
 	struct mosquitto	*mosq;
 	char				*logname;
 
-	dir = opendir("log");
-	if (dir)
-		closedir(dir);
-	else if (ENOENT == errno)
-		mkdir("log", 0755);
-	else
-		fprintf(stderr, "Failed to create log directory");
 	logname = get_logname();
 	fd = open(logname, O_CREAT | O_APPEND | O_RDWR, 0664);
 	mosquitto_lib_init();
@@ -105,7 +95,7 @@ int	main(void)
 	rc = mosquitto_connect(mosq, "localhost", 1883, 10);
 	if (rc != 0)
 	{
-		printf("Could not connect to Broker with return code %i\n", rc);
+		fprintf(stderr, "Could not connect to Broker with return code %i\n", rc);
 		close(fd);
 		return (EXIT_FAILURE);
 	}
