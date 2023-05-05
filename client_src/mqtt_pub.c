@@ -6,7 +6,7 @@
 /*   By: makurz <dumba@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/03 18:40:06 by makurz            #+#    #+#             */
-/*   Updated: 2023/05/05 00:18:23 by makurz           ###   ########.fr       */
+/*   Updated: 2023/05/05 10:18:25 by makurz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ char	*get_publish_time(void)
 	return (timestamp);
 }
 
-int	main(int argc, char **argv)
+int	main(void)
 {
-	char				*file_name;
+	char				file_name[] = "./sensordata_src/sensor_simulated_data.txt";
 	char				*timestamp;
 	char				*line;
 	char				*pub_string;
@@ -42,12 +42,7 @@ int	main(int argc, char **argv)
 	int					fd;
 	struct mosquitto	*mosq;
 
-	if (argc != 2)
-	{
-		printf("Usage: ./mqtt_pub [file_name]\n");
-		return (-1);
-	}
-	file_name = argv[1];
+	//file_name = argv[1];
 	fd = open(file_name, O_RDONLY);
 	if (fd == -1)
 	{
@@ -73,7 +68,6 @@ int	main(int argc, char **argv)
 		line[strlen(line) - 1] = ' ';
 		pub_string = calloc(strlen(timestamp) + strlen(line) + 1,\
 				sizeof(char));
-		printf("##%s##\n", timestamp);
 		if (pub_string == NULL)
 		{
 			mosquitto_destroy(mosq);
