@@ -10,7 +10,7 @@ OBJ_CONTROLLER := $(addprefix $(OBJ_DIR)/, $(SRC_CONTROLLER:%.c=%.o))
 
 INC := -lmosquitto
 
-all: client controller report
+all: client controller
 
 client: $(OBJ_CLIENT)
 	gcc $(OBJ_CLIENT) -o $@ $(INC) 
