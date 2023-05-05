@@ -36,3 +36,5 @@ fclean: clean
 	rm -f controller
 
 re: fclean all
+	rm client
+	rm controller
