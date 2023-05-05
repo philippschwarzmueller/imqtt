@@ -1,5 +1,7 @@
-.ccls-cache
+.ccls-cache/
 .DS_Store
 client
 controller
 report_src/node_modules/
+_obj/
+*.log
