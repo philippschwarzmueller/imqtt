@@ -85,8 +85,6 @@ int	main(void)
 	struct mosquitto	*mosq;
 	char				*logname;
 
-	logname = get_logname();
-	fd = open(logname, O_CREAT | O_APPEND | O_RDWR, 0664);
 	mosquitto_lib_init();
 	id = 12;
 	mosq = mosquitto_new("subscribe-test", true, &id);
@@ -99,6 +97,8 @@ int	main(void)
 		close(fd);
 		return (EXIT_FAILURE);
 	}
+	logname = get_logname();
+	fd = open(logname, O_CREAT | O_APPEND | O_RDWR, 0664);
 	mosquitto_loop_start(mosq);
 	printf("Press enter to quit...\n");
 	getchar();
