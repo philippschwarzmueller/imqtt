@@ -34,7 +34,7 @@ static char	*get_publish_time(void)
 	now = time(NULL);
 	local_time = localtime(&now);
 	timestamp = calloc(50, sizeof(char));
-	strftime(timestamp, 50, "%Y-%m-%dT%H-%M-%S", local_time);
+	strftime(timestamp, 50, "%Y-%m-%dT%H:%M:%S", local_time);
 	return (timestamp);
 }
 
@@ -53,8 +53,8 @@ int	main(void)
 	fd = open(file_name, O_RDONLY);
 	if (fd == -1)
 	{
-		printf("Could not open file\n");
-		return (1);
+		fprintf(stderr, "Could not open file\n");
+		return (EXIT_FAILURE);
 	}
 	mosquitto_lib_init();
 	mosq = mosquitto_new("temperature_sensor", true, NULL);
@@ -64,10 +64,10 @@ int	main(void)
 	rc = mosquitto_connect(mosq, "localhost", 1883, 60);
 	if (rc != 0)
 	{
-		printf("Client could not connect to broker! Error code: %i\n", rc);
+		fprintf(stderr, "Client could not connect to broker! Error code: %i\n", rc);
 		mosquitto_destroy(mosq);
 		mosquitto_lib_cleanup();
-		return (rc);
+		return (EXIT_FAILURE);
 	}
 	printf("Client is now connected to the broker!\n");
 	line = get_next_line(fd);
@@ -88,8 +88,8 @@ int	main(void)
 		{
 			mosquitto_destroy(mosq);
 			mosquitto_lib_cleanup();
-			printf("Malloc failed\n");
-			return (1);
+			fprintf(stderr, "Malloc failed\n");
+			return (EXIT_FAILURE);
 		}
 		strcpy(pub_string, line);
 		strcat(pub_string, timestamp);
@@ -105,5 +105,5 @@ int	main(void)
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
-	return (0);
+	return (EXIT_SUCCESS);
 }
