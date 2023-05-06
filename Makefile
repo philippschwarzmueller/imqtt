@@ -13,7 +13,7 @@ INC := -lmosquitto
 all: client controller
 
 client: $(OBJ_CLIENT)
-	gcc $(OBJ_CLIENT) -o $@ $(INC) 
+	gcc $(OBJ_CLIENT) -o $@ $(INC)
 
 controller: $(OBJ_CONTROLLER)
 	gcc $(OBJ_CONTROLLER) -o $@ $(INC)
@@ -36,5 +36,3 @@ fclean: clean
 	rm -f controller
 
 re: fclean all
-	rm client
-	rm controller
