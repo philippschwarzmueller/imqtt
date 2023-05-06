@@ -59,8 +59,8 @@ int	main(void)
 	mosquitto_lib_init();
 	mosq = mosquitto_new("temperature_sensor", true, NULL);
 	// set a last will for the client
-	mosquitto_will_set(mosq, "sensor/temperature_1", 10,\
-			"Last will", 0, false);
+	mosquitto_will_set(mosq, "sensor/temperature_1", 39,\
+			"Temperature sensor shut down unintended", 0, false);
 	rc = mosquitto_connect(mosq, "localhost", 1883, 60);
 	if (rc != 0)
 	{
