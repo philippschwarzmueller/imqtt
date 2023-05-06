@@ -7,7 +7,25 @@
 #include <fcntl.h>
 #include <time.h>
 
-char	*get_publish_time(void)
+static char	*create_random_string(void)
+{
+	const char	charset[] = "0123456789";
+	char		*error;
+	char		random[4];
+	int			i;
+
+	random[2] = ' ';
+	i = -1;
+	while (++i < 2)
+		random[i] = charset[rand() % (sizeof(charset) - 1)];
+	random[i + 1] = '\0';
+	error = calloc(3 + strlen("Temperature:") + 1, sizeof(char));
+	strcpy(error, "Temperature:");
+	strcat(error, random);
+	return (error);
+}
+
+static char	*get_publish_time(void)
 {
 	time_t		now;
 	struct tm	*local_time;
@@ -26,11 +44,12 @@ int	main(void)
 	char				*timestamp;
 	char				*line;
 	char				*pub_string;
+	int					send_error;
 	int					rc;
 	int					fd;
 	struct mosquitto	*mosq;
 
-	//file_name = argv[1];
+	srand(time(NULL));
 	fd = open(file_name, O_RDONLY);
 	if (fd == -1)
 	{
@@ -38,8 +57,10 @@ int	main(void)
 		return (EXIT_FAILURE);
 	}
 	mosquitto_lib_init();
-	mosq = mosquitto_new("publisher-test", true, NULL);
-
+	mosq = mosquitto_new("temperature_sensor", true, NULL);
+	// set a last will for the client
+	mosquitto_will_set(mosq, "sensor/temperature_1", 39,\
+			"Temperature sensor shut down unintended", 0, false);
 	rc = mosquitto_connect(mosq, "localhost", 1883, 60);
 	if (rc != 0)
 	{
@@ -52,8 +73,15 @@ int	main(void)
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
+		send_error = rand() % 4;
 		timestamp = get_publish_time();
-		line[strlen(line) - 1] = ' ';
+		if (send_error == 2)
+		{
+			free(line);
+			line = create_random_string();
+		}
+		else
+			line[strlen(line) - 1] = ' ';
 		pub_string = calloc(strlen(timestamp) + strlen(line) + 1,\
 				sizeof(char));
 		if (pub_string == NULL)
@@ -70,7 +98,7 @@ int	main(void)
 		free(line);
 		free(pub_string);
 		line = get_next_line(fd);
-		sleep(5);
+		sleep(1);
 	}
 	free(timestamp);
 	close(fd);

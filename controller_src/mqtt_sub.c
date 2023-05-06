@@ -87,7 +87,7 @@ int	main(void)
 
 	mosquitto_lib_init();
 	id = 12;
-	mosq = mosquitto_new("subscribe-test", true, &id);
+	mosq = mosquitto_new("control-client", true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 	rc = mosquitto_connect(mosq, "localhost", 1883, 10);

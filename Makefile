@@ -15,7 +15,7 @@ INC := -lmosquitto
 all: client controller $(ERRLOG)
 
 client: $(OBJ_CLIENT)
-	gcc $(OBJ_CLIENT) -o $@ $(INC) 
+	gcc $(OBJ_CLIENT) -o $@ $(INC)
 
 controller: $(OBJ_CONTROLLER)
 	gcc $(OBJ_CONTROLLER) -o $@ $(INC)
