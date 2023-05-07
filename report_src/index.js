@@ -30,8 +30,8 @@ const compareLogs = async (filepath_orig, filepath_received) => {
     result.push({
       original: original_values[i],
       received: received_values[i],
-      error: original_values[i] != received_values[i] ? true : false
-  });
+      error: original_values[i] != received_values[i] ? true : false,
+    });
   }
   return result;
 };
@@ -41,6 +41,16 @@ const app = express();
 
 app.get("/", async (req, res) => {
   res.sendFile("./index.html", { root: __dirname });
+});
+
+app.get("/all_logs", async (req, res) => {
+  let result = [];
+  fs.readdir("../log", (err, files) => files.forEach(file => {
+    result.push(file);
+    console.log(file);
+  }));
+  //this isn't good style but for now it works - somehow couln't make async work
+  setTimeout(() => {res.json(result);}, 1000);
 });
 
 app.get("/create_report", async (req, res) => {
