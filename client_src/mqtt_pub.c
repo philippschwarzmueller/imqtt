@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <time.h>
 
+// Function for creating wrong data 
+// to send it to the controller
 static char	*create_random_string(void)
 {
 	const char	charset[] = "0123456789";
@@ -25,6 +27,8 @@ static char	*create_random_string(void)
 	return (error);
 }
 
+// Get time for sending it together with the
+// data from the simulated data set
 static char	*get_publish_time(void)
 {
 	time_t		now;
@@ -58,9 +62,10 @@ int	main(void)
 	}
 	mosquitto_lib_init();
 	mosq = mosquitto_new("temperature_sensor", true, NULL);
-	// set a last will for the client
+	// set a last will message for the client
 	mosquitto_will_set(mosq, "sensor/temperature_1", 39,\
 			"Temperature sensor shut down unintended", 0, false);
+	// connect to the MQTT broker
 	rc = mosquitto_connect(mosq, "localhost", 1883, 60);
 	if (rc != 0)
 	{
@@ -71,10 +76,13 @@ int	main(void)
 	}
 	printf("Client is now connected to the broker!\n");
 	line = get_next_line(fd);
+	// Loop for sending the data from the simulated data set
+	// to the controller for testing
 	while (line != NULL)
 	{
 		send_error = rand() % 4;
 		timestamp = get_publish_time();
+		// Randomly send wrong data
 		if (send_error == 2)
 		{
 			free(line);
@@ -102,6 +110,9 @@ int	main(void)
 	}
 	free(timestamp);
 	close(fd);
+	// After finish sending the data,
+	// disconnect properly from the broker
+	// and cleanup
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
