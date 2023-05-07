@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>iMQTT - Report</title>
+  </head>
+  <body>
+    <h1>Hey QT 🤗</h1>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+    import {
+      h,
+      Component,
+      render,
+    } from "https://unpkg.com/preact@latest?module";
+    import {
+      useState,
+      useEffect,
+    } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
+    import htm from "https://esm.sh/htm";
+
+    const html = htm.bind(h);
+
+    function TableLine({ line }) {
+      return html`<tr>
+        <td>${line.original}</td>
+        <td>${line.received}</td>
+        <td>${line.error ? "❌" : "✅" }</td>
+      </tr>`;
+    }
+
+    function App(props) {
+      let [data, setData] = useState([]);
+      useEffect(async () => {
+        let response = await fetch("/create_report");
+        data = await response.json();
+        console.log(data);
+        setData(data);
+      }, []);
+      return html`<table>
+        ${data.map((row) => {return html`<${TableLine} line=${row} />`})}
+      </table>`;
+    }
+
+    render(html`<${App} name="World" />`, document.getElementById("app"));
+  </script>
+</html>
