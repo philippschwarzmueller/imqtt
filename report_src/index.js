@@ -37,7 +37,7 @@ const compareLogs = async (filepath_orig, filepath_received) => {
 const app = express();
 
 app.get('/', async (req, res) => {
-  let diff = await compareLogs('../sensordata_src/sensor_simulated_data.txt', '../log/5_May_11:00:04.log')
+  let diff = await compareLogs('../sensordata_src/sensor_simulated_data.csv', '../log/5_May_11:00:04.log')
   res.send(diff);
 })
 
