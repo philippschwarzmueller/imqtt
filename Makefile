@@ -1,7 +1,7 @@
 VPATH := client_src controller_src
 
 SRC_CLIENT := mqtt_pub.c get_next_line.c get_next_line_utils.c
-SRC_CONTROLLER := mqtt_sub.c
+SRC_CONTROLLER := mqtt_sub.c string_util.c
 
 ERRLOG	:= $(shell mkdir -p log ; touch log/ERR.log)
 
