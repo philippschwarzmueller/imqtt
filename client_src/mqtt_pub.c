@@ -16,8 +16,8 @@ static void	cleanup_handling(struct mosquitto *mosq, int EXIT_CODE)
 	if (EXIT_CODE == 1)
 			fprintf(stderr, "Malloc failed\n");
 	else if (EXIT_CODE > 0)
-		fprintf(stderr, "Client could not connect \
-				to broker! Error code: %i\n", EXIT_CODE);
+		fprintf(stderr, "Client could not connect to broker! Error code: %i.\n",\
+				EXIT_CODE);
 	exit(EXIT_CODE);
 }
 
