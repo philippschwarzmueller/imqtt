@@ -12,8 +12,9 @@ async function processLineByLine(filepath) {
   });
 
   for await (const line of rl) {
-    let temp = line.split(":");
-    result.push(parseFloat(temp[1]));
+    let value = line.split(":");
+    let time = line.split(" ");
+    result.push({value: parseFloat(value[1]), time: time[1]});
   }
   return result;
 }
@@ -28,9 +29,11 @@ const compareLogs = async (filepath_orig, filepath_received) => {
       `diff at original: ${original_values[i]} received ${received_values[i]}`
     );
     result.push({
-      original: original_values[i],
-      received: received_values[i],
-      error: original_values[i] != received_values[i] ? true : false,
+      original: original_values[i]?.value,
+      origin_time: original_values[i]?.time,
+      received: received_values[i]?.value,
+      received_time: received_values[i]?.time,
+      error: original_values[i]?.value != received_values[i]?.value ? true : false,
     });
   }
   return result;
