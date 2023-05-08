@@ -44,7 +44,7 @@ static char	*get_publish_time(void)
 
 int	main(void)
 {
-	char				file_name[] = "./sensordata_src/sensor_simulated_data.txt";
+	char				file_name[] = "./sensordata_src/sensor_simulated_data.csv";
 	char				*timestamp;
 	char				*line;
 	char				*pub_string;
