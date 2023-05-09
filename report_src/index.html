@@ -31,6 +31,7 @@
     } from "https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module";
     import htm from "https://esm.sh/htm";
 
+    // gets the logfile from old route and renders the graph with chart.js
     let ctx = document.getElementById("graph");
     let log = await fetch("/create_report").then((result) => result.json());
     let lables = await log.map((item) => {
@@ -77,6 +78,7 @@
     }
     const html = htm.bind(h);
 
+    // returns a line in the predefined format for the result table
     function TableLine({ line }) {
       function setCharAt(str, index, chr) {
         if (index > str.length - 1) return str;
@@ -97,10 +99,13 @@
       </tr>`;
     }
 
-    function Table(props) {
+    // renders table and prints line for every log
+    function Table() {
       let [data, setData] = useState([]);
+      let [file, setFilename] = useState("8_May_23:52:07r.log");
       useEffect(async () => {
-        let response = await fetch("/create_report");
+        let query = "/create_report" + file;
+        let response = await fetch(query);
         data = await response.json();
         setData(data);
       }, []);
@@ -121,21 +126,31 @@
       </table>`;
     }
 
+    // main app component
     function App(props) {
       let [files, setFiles] = useState([]);
+      let [selected, setSelected] = useState("");
       useEffect(async () => {
         let response = await fetch("/all_logs");
         files = await response.json();
         setFiles(files);
       }, []);
       return html`<div>
-        <form><label>Select Logfile</label><select>${files.map((file) => {
-          return html`<option value=${file}>${file}</option`
-        })}</select></form>
+        <form>
+          <label>Select Logfile</label>
+          <select>
+            ${files.map((file) => {
+              return html`<option value=${file} onChange=${(e) => {
+                setSelected(e.target.value);
+              }}>${file}</option`;
+            })}
+          </select>
+        </form>
         <${Table} />
       </div>`;
     }
 
+    // attach the main component to the DOM
     render(html`<${App} name="World" />`, document.getElementById("app"));
   </script>
 </html>
