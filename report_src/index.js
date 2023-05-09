@@ -59,7 +59,7 @@ app.get("/all_logs", async (req, res) => {
 app.get("/create_report", async (req, res) => {
   let data = await compareLogs(
     "../sensordata_src/sensor_simulated_data.txt",
-    "../log/5_May_11:00:04.log"
+    "../log/8_May_23:52:07r.log"
   );
   res.json(data);
 });
