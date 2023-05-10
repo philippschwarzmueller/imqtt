@@ -8,7 +8,6 @@ char	*get_logname(void)
 	char	*logname;
 	char	**splited;
 	time_t	t;
-	
 
 	time(&t);
 	logname = ctime(&t);
@@ -30,12 +29,12 @@ void	on_connect(struct mosquitto *mosq, void *obj, int rc)
 	mosquitto_subscribe(mosq, NULL, "sensor/temperature_1", 0);
 }
 
+//writes the message to the log file
 void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
 {
 	(void) mosq;
 	(void) obj;
 
-	// printf("New message with topic %s: %s\n", msg->topic, pay);
 	write(fd, (char *)msg->payload, msg->payloadlen);
 	write(fd, "\n", 1);
 }
