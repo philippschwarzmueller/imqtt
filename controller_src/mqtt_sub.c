@@ -36,7 +36,7 @@ void	on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	(void) obj;
 
 	// printf("New message with topic %s: %s\n", msg->topic, pay);
-	write(fd, (char *)msg->payload, strlen((char *)msg->payload));
+	write(fd, (char *)msg->payload, msg->payloadlen);
 	write(fd, "\n", 1);
 }
 
