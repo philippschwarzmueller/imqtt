@@ -25,7 +25,7 @@ char	*join_three(char *day, char *month, char *time, char delimiter)
 	append_string(logname, month, &i);
 	logname[i++] = delimiter;
 	append_string(logname, time, &i);
-	logname[size] = '\0';
+	logname[i] = '\0';
 	return (logname);
 }
 
