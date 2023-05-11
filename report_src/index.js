@@ -57,22 +57,22 @@ app.get("/all_logs", async (req, res) => {
 });
 
 // new route with id param that specifies the filename
-app.get("/create_report:id", async (req, res) => {
+app.get("/create_report/:id", async (req, res) => {
   let data = await compareLogs(
-    "../sensordata_src/sensor_simulated_data.txt",
+    "../sensordata_src/sensor_simulated_data.csv",
     "../log/" + req.params.id
   );
   res.json(data);
 });
 
 // old route with fixed log file - preselected
-app.get("/create_report", async (req, res) => {
-  let data = await compareLogs(
-    "../sensordata_src/sensor_simulated_data.txt",
-    "../log/8_May_23:52:07r.log"
-  );
-  res.json(data);
-});
+//app.get("/create_report", async (req, res) => {
+//  let data = await compareLogs(
+//    "../sensordata_src/sensor_simulated_data.csv",
+//    "../log/8_May_23:52:07r.log"
+//  );
+//  res.json(data);
+//});
 
 // start the backend app
 app.listen(3000, () =>

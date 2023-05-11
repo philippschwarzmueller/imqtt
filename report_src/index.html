@@ -10,7 +10,9 @@
   </head>
   <body>
     <h1>Hey iMQTT 🤗</h1>
-    <canvas id="graph"></canvas>
+    <div id="chart_div">
+      <canvas id="graph"></canvas>
+    </div>
     <div id="app"></div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
@@ -32,51 +34,79 @@
     import htm from "https://esm.sh/htm";
 
     // gets the logfile from old route and renders the graph with chart.js
-    let ctx = document.getElementById("graph");
-    let log = await fetch("/create_report").then((result) => result.json());
-    let lables = await log.map((item) => {
-      return item.received_time;
-    });
-    let received_data = await log.map((item) => {
-      return item.received;
-    });
-    let original_data = await log.map((item) => {
-      return item.original;
-    });
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: lables,
-        datasets: [
-          {
-            label: "received degrees in C",
-            data: received_data,
-            borderWidth: 1,
-          },
-          {
-            label: "original degrees in C",
-            data: original_data,
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-          x: {
-            min: Math.min(lables),
-            max: Math.max(lables),
+    let fetch_graph_data = async (fileName) => {
+      let result = {
+        lables: [],
+        received_data: [],
+        original_data: [],
+      };
+      let log;
+      if (fileName) {
+        log = await fetch("/create_report/" + fileName).then((result) =>
+          result.json()
+        );
+      } else {
+        return ;
+      }
+      result.lables = await log.map((item) => {
+        return item.received_time;
+      });
+      result.received_data = await log.map((item) => {
+        return item.received;
+      });
+      result.original_data = await log.map((item) => {
+        return item.original;
+      });
+      return result;
+    };
+    let drawGraph = async (filename) => {
+      let chart_data;
+      let ctx = document.getElementById("graph");
+      if (filename) chart_data = await fetch_graph_data(filename);
+      else chart_data = await fetch_graph_data();
+      let graph = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: chart_data.lables,
+          datasets: [
+            {
+              label: "received degrees in C",
+              data: chart_data.received_data,
+              borderWidth: 1,
+            },
+            {
+              label: "original degrees in C",
+              data: chart_data.original_data,
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+            x: {
+              min: Math.min(chart_data.labels),
+              max: Math.max(chart_data.lables),
+            },
           },
         },
-      },
-    });
+      });
+    };
+    //drawGraph();
+
+    //helps with reformatting the date strings to ISO Dates
     function setCharAt(str, index, chr) {
       if (index > str.length - 1) return str;
       return str.substring(0, index) + chr + str.substring(index + 1);
     }
     const html = htm.bind(h);
+
+    function Graph({ filename }) {
+      drawGraph(filename);
+      return html`<div></div>`
+    }
 
     // returns a line in the predefined format for the result table
     function TableLine({ line }) {
@@ -87,7 +117,6 @@
       let formattedDate = line.received_time.replace(/-/g, ":");
       formattedDate = setCharAt(formattedDate, 4, "-");
       formattedDate = setCharAt(formattedDate, 7, "-");
-      console.log(formattedDate);
       const timestamp = new Date(formattedDate);
       return html`<tr>
         <td>${line.original}</td>
@@ -100,15 +129,16 @@
     }
 
     // renders table and prints line for every log
-    function Table() {
+    function Table({ filename }) {
       let [data, setData] = useState([]);
-      let [file, setFilename] = useState("8_May_23:52:07r.log");
       useEffect(async () => {
-        let query = "/create_report" + file;
+        let query = "/create_report/" + filename;
+        if (query.length === 15)
+          return ;
         let response = await fetch(query);
         data = await response.json();
         setData(data);
-      }, []);
+      }, [filename]);
       return html`<table class="table table-striped">
         <thead>
           <tr>
@@ -128,25 +158,35 @@
 
     // main app component
     function App(props) {
-      let [files, setFiles] = useState([]);
-      let [selected, setSelected] = useState("");
+      let [fileList, setFileList] = useState([]);
+      let [form, setForm] = useState("");
+
       useEffect(async () => {
+        let result;
         let response = await fetch("/all_logs");
-        files = await response.json();
-        setFiles(files);
+        result = await response.json();
+        setFileList(result);
       }, []);
       return html`<div>
-        <form>
+        <form
+          onSubmit=${(e) => {
+            console.log("this " + form);
+            e.preventDefault();
+          }}
+        >
           <label>Select Logfile</label>
-          <select>
-            ${files.map((file) => {
-              return html`<option value=${file} onChange=${(e) => {
-                setSelected(e.target.value);
-              }}>${file}</option`;
+          <select value=${form}
+            onChange=${(e) => {
+              setForm(e.target.value);
+            }}
+          >
+            ${fileList.map((file) => {
+              return html`<option value=${file}>${file}</option>`;
             })}
           </select>
         </form>
-        <${Table} />
+        <${Graph} filename=${form} />
+        <${Table} filename=${form} />
       </div>`;
     }
 
